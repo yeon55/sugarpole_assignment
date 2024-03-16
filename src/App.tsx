@@ -4,6 +4,7 @@ import "../public/index.css";
 const App = () => {
   const [zoomFactor, setZoomFactor] = useState(1); // 초기 줌 배율은 1로 설정
   const [zoomed, setZoomed] = useState(false); // 확대 여부 상태
+  const [flipped, setFlipped] = useState(false); // 좌우 반전 여부 상태
 
   const headerHeight = 116;
 
@@ -15,8 +16,9 @@ const App = () => {
     }
   }
 
+  // 좌우 반전 기능
   function handleFlipH(): void {
-    //
+    setFlipped(!flipped); // 좌우 반전 상태를 토글
   }
 
   function handleFlipV(): void {
@@ -78,7 +80,9 @@ const App = () => {
         <div className="relative w-full">
           <img
             className="absolute w-full"
-            style={{ transform: `scale(${zoomFactor})` }}
+            style={{
+              transform: `scaleX(${flipped ? -1 : 1}) scale(${zoomFactor})`, // 좌우 반전 및 확대 적용
+            }}
             src="/image/img0.png"
             alt="img_main"
           />
