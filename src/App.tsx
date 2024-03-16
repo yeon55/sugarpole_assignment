@@ -5,8 +5,7 @@ const App = () => {
   const [zoomFactor, setZoomFactor] = useState(1); // 초기 줌 배율은 1로 설정
   const [zoomed, setZoomed] = useState(false); // 확대 여부 상태
   const [flipped, setFlipped] = useState(false); // 좌우 반전 여부 상태
-
-  const headerHeight = 116;
+  const [flippedVertical, setFlippedVertical] = useState(false); // 상하 반전 여부 상태
 
   // Zoom 기능
   function handleZoom(): void {
@@ -21,9 +20,11 @@ const App = () => {
     setFlipped(!flipped); // 좌우 반전 상태를 토글
   }
 
+  // 상하 반전 기능
   function handleFlipV(): void {
-    //
+    setFlippedVertical(!flippedVertical); // 상하 반전 상태를 토글
   }
+
   function handleRotate(): void {
     //
   }
@@ -81,7 +82,9 @@ const App = () => {
           <img
             className="absolute w-full"
             style={{
-              transform: `scaleX(${flipped ? -1 : 1}) scale(${zoomFactor})`, // 좌우 반전 및 확대 적용
+              transform: `scaleX(${flipped ? -1 : 1}) scaleY(${
+                flippedVertical ? -1 : 1
+              }) scale(${zoomFactor})`, // 좌우 및 상하 반전 및 확대 적용
             }}
             src="/image/img0.png"
             alt="img_main"
