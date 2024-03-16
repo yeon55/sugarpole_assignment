@@ -3,10 +3,15 @@ import "../public/index.css";
 
 const App = () => {
   const [zoomFactor, setZoomFactor] = useState(1); // 초기 줌 배율은 1로 설정
+  const [zoomed, setZoomed] = useState(false); // 확대 여부 상태
+
   const headerHeight = 116;
 
   function handleZoom(): void {
-    setZoomFactor((prevZoomFactor) => prevZoomFactor + 0.1); // 10%씩 확대
+    if (!zoomed) {
+      setZoomFactor((prevZoomFactor) => prevZoomFactor + 0.1); // 10%씩 확대
+      setZoomed(true); // 확대 상태 업데이트
+    }
   }
 
   function handleFlipH(): void {
@@ -34,10 +39,6 @@ const App = () => {
   function handleNextImage(): void {
     //
   }
-
-  const mainStyle = {
-    height: `calc(100vh - ${headerHeight}px)`, // 헤더 높이만큼 뺀 나머지 공간을 main 영역의 높이로 설정
-  };
 
   return (
     <>
@@ -72,10 +73,10 @@ const App = () => {
       </header>
 
       {/* main 부분 */}
-      <main className="relative z-0" style={mainStyle}>
-        <div className="w-full">
+      <main className="p-10 z-0 flex justify-center">
+        <div className="relative w-full">
           <img
-            className="w-full"
+            className="absolute w-full"
             style={{ transform: `scale(${zoomFactor})` }}
             src="/image/img0.png"
             alt="img_main"
