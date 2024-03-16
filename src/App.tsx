@@ -7,9 +7,10 @@ const App = () => {
 
   const headerHeight = 116;
 
+  // Zoom 기능
   function handleZoom(): void {
     if (!zoomed) {
-      setZoomFactor((prevZoomFactor) => prevZoomFactor + 0.1); // 10%씩 확대
+      setZoomFactor((prevZoomFactor) => prevZoomFactor + 0.05); // 5%씩 확대
       setZoomed(true); // 확대 상태 업데이트
     }
   }
@@ -73,7 +74,7 @@ const App = () => {
       </header>
 
       {/* main 부분 */}
-      <main className="p-10 z-0 flex justify-center">
+      <main className="p-20 z-0 flex justify-center">
         <div className="relative w-full">
           <img
             className="absolute w-full"
