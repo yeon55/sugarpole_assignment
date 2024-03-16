@@ -79,17 +79,18 @@ const App = () => {
 
       {/* main 부분 */}
       <main className="p-20 z-0 flex justify-center">
-        <div className="relative w-full">
+        <div className="relative w-full flex justify-between items-center">
           <img
-            className="absolute w-full"
+            className="w-50%"
             style={{
               transform: `rotate(${rotationAngle}deg) scaleX(${
                 flipped ? -1 : 1
               }) scaleY(${flippedVertically ? -1 : 1}) scale(${zoomFactor})`, // 회전 및 좌우 및 상하 반전 및 확대 적용
             }}
             src="/image/img0.png"
-            alt="img_main"
+            alt="img_0"
           />
+          <img className="w-50%" src="/image/img1.png" alt="img_1" />
         </div>
       </main>
     </>
