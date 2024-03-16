@@ -5,7 +5,8 @@ const App = () => {
   const [zoomFactor, setZoomFactor] = useState(1); // 초기 줌 배율은 1로 설정
   const [zoomed, setZoomed] = useState(false); // 확대 여부 상태
   const [flipped, setFlipped] = useState(false); // 좌우 반전 여부 상태
-  const [flippedVertical, setFlippedVertical] = useState(false); // 상하 반전 여부 상태
+  const [flippedVertically, setFlippedVertically] = useState(false); // 상하 반전 여부 상태
+  const [rotationAngle, setRotationAngle] = useState(0); // 회전 각도 상태
 
   // Zoom 기능
   function handleZoom(): void {
@@ -22,11 +23,11 @@ const App = () => {
 
   // 상하 반전 기능
   function handleFlipV(): void {
-    setFlippedVertical(!flippedVertical); // 상하 반전 상태를 토글
+    setFlippedVertically(!flippedVertically); // 상하 반전 상태를 토글
   }
 
   function handleRotate(): void {
-    //
+    setRotationAngle((prevRotationAngle) => prevRotationAngle + 30); // 현재 회전 각도에 30도를 더하기
   }
   function handleInvert(): void {
     //
@@ -82,9 +83,9 @@ const App = () => {
           <img
             className="absolute w-full"
             style={{
-              transform: `scaleX(${flipped ? -1 : 1}) scaleY(${
-                flippedVertical ? -1 : 1
-              }) scale(${zoomFactor})`, // 좌우 및 상하 반전 및 확대 적용
+              transform: `rotate(${rotationAngle}deg) scaleX(${
+                flipped ? -1 : 1
+              }) scaleY(${flippedVertically ? -1 : 1}) scale(${zoomFactor})`, // 회전 및 좌우 및 상하 반전 및 확대 적용
             }}
             src="/image/img0.png"
             alt="img_main"
