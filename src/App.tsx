@@ -23,6 +23,8 @@ const App = () => {
     },
   ]);
 
+  const [clickedImageId, setClickedImageId] = useState(Number); // 클릭된 이미지의 ID 추적
+
   // 이미지 상태 업데이트 함수
   const updateImageState = (
     id: number,
@@ -39,54 +41,47 @@ const App = () => {
     );
   };
 
-  // Zoom 기능
-  const handleZoom = (id: number) => {
-    updateImageState(id, {
-      zoomFactor: images[id].zoomed
-        ? images[id].zoomFactor
-        : images[id].zoomFactor + 0.05,
-      zoomed: true,
-    });
-  };
+  // 이미지 클릭 핸들러
+  const handleImageClick = (id: number) => ({
+    handleZoom: () =>
+      updateImageState(id, {
+        zoomFactor: images[id].zoomed
+          ? images[id].zoomFactor
+          : images[id].zoomFactor + 0.05,
+        zoomed: true,
+      }),
 
-  // 좌우 반전 기능
-  const handleFlipH = (id: number) => {
-    updateImageState(id, { flipped: !images[id].flipped });
-  };
+    handleFlipH: () => updateImageState(id, { flipped: !images[id].flipped }),
 
-  // 상하 반전 기능
-  const handleFlipV = (id: number) => {
-    updateImageState(id, { flippedVertically: !images[id].flippedVertically });
-  };
+    handleFlipV: () =>
+      updateImageState(id, {
+        flippedVertically: !images[id].flippedVertically,
+      }),
 
-  // 각도 조절 기능
-  const handleRotate = (id: number) => {
-    updateImageState(id, { rotationAngle: images[id].rotationAngle + 30 });
-  };
+    handleRotate: () =>
+      updateImageState(id, { rotationAngle: images[id].rotationAngle + 30 }),
 
-  // Invert 기능
-  const handleInvert = (id: number) => {
-    // Handle Invert
-  };
+    handleInvert: () => {
+      //
+    },
 
-  // Colormap 적용 기능
-  const handleColormap = (id: number) => {
-    // Handle Colormap
-  };
+    handleColormap: () => {
+      //
+    },
 
-  // Reset 기능
-  const handleReset = (id: number) => {
-    // Handle Reset
-  };
+    handleReset: () => {
+      //
+    },
+  });
 
   // Previous Image 기능
   const handlePreviousImage = () => {
-    // Handle Previous Image
+    //
   };
 
   // Next Image 기능
   const handleNextImage = () => {
-    // Handle Next Image
+    //
   };
 
   return (
@@ -96,13 +91,25 @@ const App = () => {
         <div className=" text-xs flex items-center">
           <div className="mr-4">Dicom Viewer(with Cornerstone.js)</div>
           <ul className="inline-flex space-x-4 mx-4">
-            <li onClick={() => handleZoom(0)}>Zoom</li>
-            <li onClick={() => handleFlipH(0)}>Flip H</li>
-            <li onClick={() => handleFlipV(0)}>Flip V</li>
-            <li onClick={() => handleRotate(0)}>Rotate Delta 30</li>
-            <li onClick={() => handleInvert(0)}>Invert</li>
-            <li onClick={() => handleColormap(0)}>Apply Colormap</li>
-            <li onClick={() => handleReset(0)}>Reset</li>
+            <li onClick={handleImageClick(clickedImageId).handleZoom}>Zoom</li>
+            <li onClick={handleImageClick(clickedImageId).handleFlipH}>
+              Flip H
+            </li>
+            <li onClick={handleImageClick(clickedImageId).handleFlipV}>
+              Flip V
+            </li>
+            <li onClick={handleImageClick(clickedImageId).handleRotate}>
+              Rotate Delta 30
+            </li>
+            <li onClick={handleImageClick(clickedImageId).handleInvert}>
+              Invert
+            </li>
+            <li onClick={handleImageClick(clickedImageId).handleColormap}>
+              Apply Colormap
+            </li>
+            <li onClick={handleImageClick(clickedImageId).handleReset}>
+              Reset
+            </li>
           </ul>
           <div className="ml-auto space-x-2">
             <button
@@ -137,7 +144,11 @@ const App = () => {
               }}
               src={image.src}
               alt={`img_${image.id}`}
-              onClick={() => handleZoom(image.id)}
+              onClick={() => {
+                const imageClickHandler = handleImageClick(image.id); // 클릭된 이미지의 id 전달
+                setClickedImageId(image.id);
+                console.log("image : ", image.id);
+              }}
             />
           ))}
         </div>
