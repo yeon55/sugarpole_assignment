@@ -11,6 +11,7 @@ const App = () => {
       flippedVertically: false,
       rotationAngle: 0,
       src: "/image/img0.png",
+      inverted: false,
     },
     {
       id: 1,
@@ -20,6 +21,7 @@ const App = () => {
       flippedVertically: false,
       rotationAngle: 0,
       src: "/image/img1.png",
+      inverted: false,
     },
   ]);
 
@@ -34,6 +36,7 @@ const App = () => {
       flipped?: boolean;
       flippedVertically?: boolean;
       rotationAngle?: number;
+      inverted?: boolean;
     }
   ) => {
     setImages(
@@ -62,7 +65,7 @@ const App = () => {
       updateImageState(id, { rotationAngle: images[id].rotationAngle + 30 }),
 
     handleInvert: () => {
-      //
+      updateImageState(id, { inverted: !images[id].inverted });
     },
 
     handleColormap: () => {
@@ -141,6 +144,7 @@ const App = () => {
                 }) scaleY(${image.flippedVertically ? -1 : 1}) scale(${
                   image.zoomFactor
                 })`,
+                filter: image.inverted ? "invert(100%)" : "none",
               }}
               src={image.src}
               alt={`img_${image.id}`}
