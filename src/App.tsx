@@ -1,8 +1,20 @@
 import React, { useState } from "react";
 import "../public/index.css";
 
+interface Image {
+  id: number;
+  zoomFactor: number;
+  zoomed: boolean;
+  flipped: boolean;
+  flippedVertically: boolean;
+  rotationAngle: number;
+  src: string;
+  inverted: boolean;
+  data: number[][]; // 이미지 픽셀 데이터를 저장할 배열
+}
+
 const App = () => {
-  const [images, setImages] = useState([
+  const [images, setImages] = useState<Image[]>([
     {
       id: 0,
       zoomFactor: 1,
@@ -12,6 +24,7 @@ const App = () => {
       rotationAngle: 0,
       src: "/image/img0.png",
       inverted: false,
+      data: [],
     },
     {
       id: 1,
@@ -22,10 +35,26 @@ const App = () => {
       rotationAngle: 0,
       src: "/image/img1.png",
       inverted: false,
+      data: [],
     },
   ]);
 
-  const [clickedImageId, setClickedImageId] = useState(Number); // 클릭된 이미지의 ID 추적
+  const [clickedImageId, setClickedImageId] = useState<number | null>(null); // 클릭된 이미지의 ID 추적
+
+  // 색상 맵을 정의합니다.
+  const colorMap = [
+    { value: 0, color: [255, 255, 255] }, // 픽셀 값이 0인 경우 흰색으로 변환
+    { value: 255, color: [255, 0, 0] }, // 픽셀 값이 255인 경우 빨간색으로 변환
+  ];
+
+  function applyColorMap(pixelValue: number) {
+    for (let i = 0; i < colorMap.length; i++) {
+      if (pixelValue <= colorMap[i].value) {
+        return colorMap[i].color;
+      }
+    }
+    return [0, 0, 0]; // 기본적으로 검정색을 반환합니다.
+  }
 
   // 이미지 상태 업데이트 함수
   const updateImageState = (
@@ -37,6 +66,7 @@ const App = () => {
       flippedVertically?: boolean;
       rotationAngle?: number;
       inverted?: boolean;
+      data?: any;
     }
   ) => {
     setImages(
@@ -69,11 +99,35 @@ const App = () => {
     },
 
     handleColormap: () => {
-      //
+      if (clickedImageId !== null) {
+        const updatedImages = images.map((image) => {
+          if (image.id === clickedImageId) {
+            const updatedImageData = image.data.map((pixelValue: any) => {
+              const color = applyColorMap(pixelValue);
+              return [...color, 255];
+            });
+            return { ...image, data: updatedImageData };
+          } else {
+            return image;
+          }
+        });
+
+        setImages(updatedImages);
+      }
     },
 
     handleReset: () => {
-      //
+      setImages(
+        images.map((image) => ({
+          ...image,
+          zoomFactor: 1,
+          zoomed: false,
+          flipped: false,
+          flippedVertically: false,
+          rotationAngle: 0,
+          inverted: false,
+        }))
+      );
     },
   });
 
@@ -94,23 +148,60 @@ const App = () => {
         <div className=" text-xs flex items-center">
           <div className="mr-4">Dicom Viewer(with Cornerstone.js)</div>
           <ul className="inline-flex space-x-4 mx-4">
-            <li onClick={handleImageClick(clickedImageId).handleZoom}>Zoom</li>
-            <li onClick={handleImageClick(clickedImageId).handleFlipH}>
+            <li
+              onClick={() =>
+                clickedImageId !== null &&
+                handleImageClick(clickedImageId).handleZoom()
+              }
+            >
+              Zoom
+            </li>
+            <li
+              onClick={() =>
+                clickedImageId !== null &&
+                handleImageClick(clickedImageId).handleFlipH()
+              }
+            >
               Flip H
             </li>
-            <li onClick={handleImageClick(clickedImageId).handleFlipV}>
+            <li
+              onClick={() =>
+                clickedImageId !== null &&
+                handleImageClick(clickedImageId).handleFlipV()
+              }
+            >
               Flip V
             </li>
-            <li onClick={handleImageClick(clickedImageId).handleRotate}>
+            <li
+              onClick={() =>
+                clickedImageId !== null &&
+                handleImageClick(clickedImageId).handleRotate()
+              }
+            >
               Rotate Delta 30
             </li>
-            <li onClick={handleImageClick(clickedImageId).handleInvert}>
+            <li
+              onClick={() =>
+                clickedImageId !== null &&
+                handleImageClick(clickedImageId).handleInvert()
+              }
+            >
               Invert
             </li>
-            <li onClick={handleImageClick(clickedImageId).handleColormap}>
+            <li
+              onClick={() =>
+                clickedImageId !== null &&
+                handleImageClick(clickedImageId).handleColormap()
+              }
+            >
               Apply Colormap
             </li>
-            <li onClick={handleImageClick(clickedImageId).handleReset}>
+            <li
+              onClick={() =>
+                clickedImageId !== null &&
+                handleImageClick(clickedImageId).handleReset()
+              }
+            >
               Reset
             </li>
           </ul>
@@ -149,9 +240,8 @@ const App = () => {
               src={image.src}
               alt={`img_${image.id}`}
               onClick={() => {
-                const imageClickHandler = handleImageClick(image.id); // 클릭된 이미지의 id 전달
+                const imageClickHandler = handleImageClick(image.id);
                 setClickedImageId(image.id);
-                console.log("image : ", image.id);
               }}
             />
           ))}
