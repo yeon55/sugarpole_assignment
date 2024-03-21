@@ -83,32 +83,6 @@ const App = () => {
     },
   ]);
 
-  useEffect(() => {
-    // 이미지 데이터 불러오는 비동기 함수
-    const loadImageData = async () => {
-      const updatedImages = await Promise.all(
-        images.map(async (image) => {
-          const response = await fetch(image.src); // 이미지 경로에 대한 요청
-          const blob = await response.blob();
-          const arrayBuffer = await new Response(blob).arrayBuffer();
-          const data = new Uint8Array(arrayBuffer); // 이미지 데이터 배열
-
-          // 데이터를 2차원 배열로 변환 (예시)
-          const imageData: number[][] = [];
-          for (let i = 0; i < data.length; i++) {
-            imageData.push([data[i]]); // 예시로 단일 픽셀로 처리
-          }
-
-          return { ...image, data: imageData };
-        })
-      );
-
-      setImages(updatedImages);
-    };
-
-    loadImageData();
-  }, []); // 컴포넌트가 처음 마운트될 때만 실행
-
   const [currentImageIndex, setCurrentImageIndex] = useState<number>(0); // 현재 보여지는 이미지의 인덱스
   const [clickedImageId, setClickedImageId] = useState<number | null>(null); // 클릭된 이미지의 ID 추적
 
@@ -118,6 +92,41 @@ const App = () => {
     { value: 255, color: [255, 0, 0] }, // 픽셀 값이 255인 경우 빨간색으로 변환
   ];
 
+  useEffect(() => {
+    // Fetch pixel data for each image
+    const fetchPixelData = async () => {
+      const updatedImages = await Promise.all(
+        images.map(async (image) => {
+          const response = await fetch(image.src);
+          const blob = await response.blob();
+          const imageBitmap = await createImageBitmap(blob);
+          const canvas = document.createElement("canvas");
+          canvas.width = imageBitmap.width;
+          canvas.height = imageBitmap.height;
+          const context = canvas.getContext("2d");
+          context?.drawImage(imageBitmap, 0, 0);
+          const imageData = context?.getImageData(
+            0,
+            0,
+            canvas.width,
+            canvas.height
+          );
+          const data: number[][] = [];
+          if (imageData) {
+            for (let i = 0; i < imageData.data.length; i += 4) {
+              const pixelValue = imageData.data[i]; // Assuming grayscale image
+              data.push([pixelValue]);
+            }
+          }
+          return { ...image, data };
+        })
+      );
+      setImages(updatedImages);
+    };
+
+    fetchPixelData();
+  }, []); // Fetch pixel data only once when component mounts
+
   function applyColorMap(pixelValue: number) {
     for (let i = 0; i < colorMap.length; i++) {
       if (pixelValue <= colorMap[i].value) {
@@ -126,7 +135,6 @@ const App = () => {
     }
     return [0, 0, 0];
   }
-
   // 이미지 상태 업데이트 함수
   const updateImageState = (
     id: number,
@@ -170,25 +178,19 @@ const App = () => {
     },
 
     handleColormap: () => {
-      const updatedImages: Image[] = images
-        .map((image) => {
-          if (image.id === id && image.data.length > 0) {
-            const updatedImageData = image.data.map((row) =>
-              row.map((pixelValue) => {
-                const color = applyColorMap(pixelValue);
-                return [...color, 255];
-              })
-            );
-            return { ...image, data: updatedImageData };
-          } else {
-            return image;
-          }
-        })
-        .filter((image): image is Image => image !== undefined); // 타입 가드 추가하여 undefined 제거하기
-
+      const updatedImages = images.map((img) => {
+        if (img.id === id) {
+          const updatedImageData = img.data.map((pixelArray: number[]) => {
+            const color = applyColorMap(pixelArray[0]);
+            return [...color, 255]; // Assuming alpha value is 255
+          });
+          return { ...img, data: updatedImageData };
+        } else {
+          return img;
+        }
+      });
       setImages(updatedImages);
     },
-
     handleReset: () => {
       setImages(
         images.map((image) => ({
@@ -209,7 +211,7 @@ const App = () => {
     setCurrentImageIndex((prevIndex) =>
       prevIndex === 0 ? prevIndex : prevIndex - 1
     );
-    setClickedImageId(null); // Previous Image를 클릭할 때 클릭된 이미지 ID 초기화
+    setClickedImageId(null);
   };
 
   // Next Image 기능
@@ -217,7 +219,7 @@ const App = () => {
     setCurrentImageIndex((prevIndex) =>
       prevIndex === images.length - 1 ? prevIndex : prevIndex + 1
     );
-    setClickedImageId(null); // Next Image를 클릭할 때 클릭된 이미지 ID 초기화
+    setClickedImageId(null);
   };
 
   return (
