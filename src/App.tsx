@@ -144,15 +144,15 @@ const App = () => {
     },
 
     handleColormap: () => {
-      const updatedImages = images.map((image) => {
-        if (image.id === id) {
-          const updatedImageData = image.data.map((pixelValue: any) => {
+      const updatedImages = images.map((images) => {
+        if (images.id === id) {
+          const updatedImageData = images.data.map((pixelValue: any) => {
             const color = applyColorMap(pixelValue);
             return [...color, 255];
           });
-          return { ...image, data: updatedImageData };
+          return { ...images, data: updatedImageData };
         } else {
-          return image;
+          return images;
         }
       });
 
@@ -195,9 +195,12 @@ const App = () => {
       {/* header 부분 */}
       <header className="min-w-max h-116 p-5 flex justify-center items-center relative z-10">
         <div className=" text-xs flex items-center">
-          <div className="mr-4">Dicom Viewer(with Cornerstone.js)</div>
-          <ul className="inline-flex space-x-4 mx-4">
+          <div className="mr-4 cursor-pointer">
+            Dicom Viewer(with Cornerstone.js)
+          </div>
+          <ul className="inline-flex space-x-4 mx-6 ">
             <li
+              className="cursor-pointer"
               onClick={() =>
                 clickedImageId !== null &&
                 handleImageClick(clickedImageId).handleZoom()
@@ -206,6 +209,7 @@ const App = () => {
               Zoom
             </li>
             <li
+              className="cursor-pointer"
               onClick={() =>
                 clickedImageId !== null &&
                 handleImageClick(clickedImageId).handleFlipH()
@@ -214,6 +218,7 @@ const App = () => {
               Flip H
             </li>
             <li
+              className="cursor-pointer"
               onClick={() =>
                 clickedImageId !== null &&
                 handleImageClick(clickedImageId).handleFlipV()
@@ -222,6 +227,7 @@ const App = () => {
               Flip V
             </li>
             <li
+              className="cursor-pointer"
               onClick={() =>
                 clickedImageId !== null &&
                 handleImageClick(clickedImageId).handleRotate()
@@ -230,6 +236,7 @@ const App = () => {
               Rotate Delta 30
             </li>
             <li
+              className="cursor-pointer"
               onClick={() =>
                 clickedImageId !== null &&
                 handleImageClick(clickedImageId).handleInvert()
@@ -238,6 +245,7 @@ const App = () => {
               Invert
             </li>
             <li
+              className="cursor-pointer"
               onClick={() =>
                 clickedImageId !== null &&
                 handleImageClick(clickedImageId).handleColormap()
@@ -246,6 +254,7 @@ const App = () => {
               Apply Colormap
             </li>
             <li
+              className="cursor-pointer"
               onClick={() =>
                 clickedImageId !== null &&
                 handleImageClick(clickedImageId).handleReset()
@@ -254,7 +263,7 @@ const App = () => {
               Reset
             </li>
           </ul>
-          <div className="ml-auto space-x-2">
+          <div className="ml-auto space-x-4">
             <button
               className="w-32 p-2.5 bg-button text-white"
               onClick={handlePreviousImage}
