@@ -59,12 +59,34 @@ const App = () => {
       inverted: false,
       data: [],
     },
+    {
+      id: 4,
+      zoomFactor: 1,
+      zoomed: false,
+      flipped: false,
+      flippedVertically: false,
+      rotationAngle: 0,
+      src: "/image/img4.png",
+      inverted: false,
+      data: [],
+    },
+    {
+      id: 5,
+      zoomFactor: 1,
+      zoomed: false,
+      flipped: false,
+      flippedVertically: false,
+      rotationAngle: 0,
+      src: "/image/img5.png",
+      inverted: false,
+      data: [],
+    },
   ]);
 
   const [currentImageIndex, setCurrentImageIndex] = useState<number>(0); // 현재 보여지는 이미지의 인덱스
   const [clickedImageId, setClickedImageId] = useState<number | null>(null); // 클릭된 이미지의 ID 추적
 
-  // 색상 맵을 정의합니다.
+  // 색상 맵을 정의
   const colorMap = [
     { value: 0, color: [255, 255, 255] }, // 픽셀 값이 0인 경우 흰색으로 변환
     { value: 255, color: [255, 0, 0] }, // 픽셀 값이 255인 경우 빨간색으로 변환
@@ -76,7 +98,7 @@ const App = () => {
         return colorMap[i].color;
       }
     }
-    return [0, 0, 0]; // 기본적으로 검정색을 반환합니다.
+    return [0, 0, 0];
   }
 
   // 이미지 상태 업데이트 함수
@@ -156,23 +178,16 @@ const App = () => {
 
   // Previous Image 기능
   const handlePreviousImage = () => {
-    if (clickedImageId !== null) {
-      const currentIndex = images.findIndex(
-        (image) => image.id === clickedImageId
-      );
-      const nextIndex = (currentIndex - 1) % images.length;
-      setClickedImageId(images[nextIndex].id);
-    }
+    setCurrentImageIndex((prevIndex) =>
+      prevIndex === 0 ? prevIndex : prevIndex - 1
+    );
   };
 
   // Next Image 기능
   const handleNextImage = () => {
     setCurrentImageIndex((prevIndex) =>
-      prevIndex === 0 ? prevIndex + 1 : prevIndex
+      prevIndex === images.length - 1 ? prevIndex : prevIndex + 1
     );
-    const nextIndex = (clickedImageId || 0) + 1;
-    const nextId = nextIndex % images.length;
-    setClickedImageId(nextId);
   };
 
   return (
@@ -191,48 +206,42 @@ const App = () => {
             </li>
             <li
               onClick={() =>
-                clickedImageId !== null &&
-                handleImageClick(clickedImageId).handleFlipH()
+                handleImageClick(images[currentImageIndex].id).handleFlipH()
               }
             >
               Flip H
             </li>
             <li
               onClick={() =>
-                clickedImageId !== null &&
-                handleImageClick(clickedImageId).handleFlipV()
+                handleImageClick(images[currentImageIndex].id).handleFlipV()
               }
             >
               Flip V
             </li>
             <li
               onClick={() =>
-                clickedImageId !== null &&
-                handleImageClick(clickedImageId).handleRotate()
+                handleImageClick(images[currentImageIndex].id).handleRotate()
               }
             >
               Rotate Delta 30
             </li>
             <li
               onClick={() =>
-                clickedImageId !== null &&
-                handleImageClick(clickedImageId).handleInvert()
+                handleImageClick(images[currentImageIndex].id).handleInvert()
               }
             >
               Invert
             </li>
             <li
               onClick={() =>
-                clickedImageId !== null &&
-                handleImageClick(clickedImageId).handleColormap()
+                handleImageClick(images[currentImageIndex].id).handleColormap()
               }
             >
               Apply Colormap
             </li>
             <li
               onClick={() =>
-                clickedImageId !== null &&
-                handleImageClick(clickedImageId).handleReset()
+                handleImageClick(images[currentImageIndex].id).handleReset()
               }
             >
               Reset
@@ -257,27 +266,33 @@ const App = () => {
 
       {/* main 부분 */}
       <main className="p-20 z-0 flex justify-center">
-        <div className="relative w-full flex justify-between items-center">
-          {images.map((image) => (
-            <img
-              key={image.id}
-              className="w-50%"
-              style={{
-                transform: `rotate(${image.rotationAngle}deg) scaleX(${
-                  image.flipped ? -1 : 1
-                }) scaleY(${image.flippedVertically ? -1 : 1}) scale(${
-                  image.zoomFactor
-                })`,
-                filter: image.inverted ? "invert(100%)" : "none",
-              }}
-              src={image.src}
-              alt={`img_${image.id}`}
-              onClick={() => {
-                const imageClickHandler = handleImageClick(image.id);
-                setClickedImageId(image.id);
-              }}
-            />
-          ))}
+        <div className="gap-10 relative flex justify-between items-center">
+          {images
+            .filter(
+              (image) =>
+                image.id === currentImageIndex ||
+                image.id === currentImageIndex + 1
+            )
+            .map((image) => (
+              <img
+                key={image.id}
+                className="w-50%"
+                style={{
+                  transform: `rotate(${image.rotationAngle}deg) scaleX(${
+                    image.flipped ? -1 : 1
+                  }) scaleY(${image.flippedVertically ? -1 : 1}) scale(${
+                    image.zoomFactor
+                  })`,
+                  filter: image.inverted ? "invert(100%)" : "none",
+                }}
+                src={image.src}
+                alt={`img_${image.id}`}
+                onClick={() => {
+                  const imageClickHandler = handleImageClick(image.id);
+                  setClickedImageId(image.id);
+                }}
+              />
+            ))}
         </div>
       </main>
     </>
