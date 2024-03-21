@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "../public/index.css";
 
 interface Image {
@@ -83,6 +83,32 @@ const App = () => {
     },
   ]);
 
+  useEffect(() => {
+    // 이미지 데이터 불러오는 비동기 함수
+    const loadImageData = async () => {
+      const updatedImages = await Promise.all(
+        images.map(async (image) => {
+          const response = await fetch(image.src); // 이미지 경로에 대한 요청
+          const blob = await response.blob();
+          const arrayBuffer = await new Response(blob).arrayBuffer();
+          const data = new Uint8Array(arrayBuffer); // 이미지 데이터 배열
+
+          // 데이터를 2차원 배열로 변환 (예시)
+          const imageData: number[][] = [];
+          for (let i = 0; i < data.length; i++) {
+            imageData.push([data[i]]); // 예시로 단일 픽셀로 처리
+          }
+
+          return { ...image, data: imageData };
+        })
+      );
+
+      setImages(updatedImages);
+    };
+
+    loadImageData();
+  }, []); // 컴포넌트가 처음 마운트될 때만 실행
+
   const [currentImageIndex, setCurrentImageIndex] = useState<number>(0); // 현재 보여지는 이미지의 인덱스
   const [clickedImageId, setClickedImageId] = useState<number | null>(null); // 클릭된 이미지의 ID 추적
 
@@ -144,17 +170,21 @@ const App = () => {
     },
 
     handleColormap: () => {
-      const updatedImages = images.map((images) => {
-        if (images.id === id) {
-          const updatedImageData = images.data.map((pixelValue: any) => {
-            const color = applyColorMap(pixelValue);
-            return [...color, 255];
-          });
-          return { ...images, data: updatedImageData };
-        } else {
-          return images;
-        }
-      });
+      const updatedImages: Image[] = images
+        .map((image) => {
+          if (image.id === id && image.data.length > 0) {
+            const updatedImageData = image.data.map((row) =>
+              row.map((pixelValue) => {
+                const color = applyColorMap(pixelValue);
+                return [...color, 255];
+              })
+            );
+            return { ...image, data: updatedImageData };
+          } else {
+            return image;
+          }
+        })
+        .filter((image): image is Image => image !== undefined); // 타입 가드 추가하여 undefined 제거하기
 
       setImages(updatedImages);
     },
