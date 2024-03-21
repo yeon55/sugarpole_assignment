@@ -10,7 +10,7 @@ interface Image {
   rotationAngle: number;
   src: string;
   inverted: boolean;
-  data: number[][]; // 이미지 픽셀 데이터를 저장할 배열
+  data: number[][];
 }
 
 const App = () => {
@@ -37,8 +37,31 @@ const App = () => {
       inverted: false,
       data: [],
     },
+    {
+      id: 2,
+      zoomFactor: 1,
+      zoomed: false,
+      flipped: false,
+      flippedVertically: false,
+      rotationAngle: 0,
+      src: "/image/img2.png",
+      inverted: false,
+      data: [],
+    },
+    {
+      id: 3,
+      zoomFactor: 1,
+      zoomed: false,
+      flipped: false,
+      flippedVertically: false,
+      rotationAngle: 0,
+      src: "/image/img3.png",
+      inverted: false,
+      data: [],
+    },
   ]);
 
+  const [currentImageIndex, setCurrentImageIndex] = useState<number>(0); // 현재 보여지는 이미지의 인덱스
   const [clickedImageId, setClickedImageId] = useState<number | null>(null); // 클릭된 이미지의 ID 추적
 
   // 색상 맵을 정의합니다.
@@ -133,12 +156,23 @@ const App = () => {
 
   // Previous Image 기능
   const handlePreviousImage = () => {
-    //
+    if (clickedImageId !== null) {
+      const currentIndex = images.findIndex(
+        (image) => image.id === clickedImageId
+      );
+      const nextIndex = (currentIndex - 1) % images.length;
+      setClickedImageId(images[nextIndex].id);
+    }
   };
 
   // Next Image 기능
   const handleNextImage = () => {
-    //
+    setCurrentImageIndex((prevIndex) =>
+      prevIndex === 0 ? prevIndex + 1 : prevIndex
+    );
+    const nextIndex = (clickedImageId || 0) + 1;
+    const nextId = nextIndex % images.length;
+    setClickedImageId(nextId);
   };
 
   return (
@@ -150,8 +184,7 @@ const App = () => {
           <ul className="inline-flex space-x-4 mx-4">
             <li
               onClick={() =>
-                clickedImageId !== null &&
-                handleImageClick(clickedImageId).handleZoom()
+                handleImageClick(images[currentImageIndex].id).handleZoom()
               }
             >
               Zoom
