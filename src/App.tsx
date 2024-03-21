@@ -144,21 +144,19 @@ const App = () => {
     },
 
     handleColormap: () => {
-      if (clickedImageId !== null) {
-        const updatedImages = images.map((image) => {
-          if (image.id === clickedImageId) {
-            const updatedImageData = image.data.map((pixelValue: any) => {
-              const color = applyColorMap(pixelValue);
-              return [...color, 255];
-            });
-            return { ...image, data: updatedImageData };
-          } else {
-            return image;
-          }
-        });
+      const updatedImages = images.map((image) => {
+        if (image.id === id) {
+          const updatedImageData = image.data.map((pixelValue: any) => {
+            const color = applyColorMap(pixelValue);
+            return [...color, 255];
+          });
+          return { ...image, data: updatedImageData };
+        } else {
+          return image;
+        }
+      });
 
-        setImages(updatedImages);
-      }
+      setImages(updatedImages);
     },
 
     handleReset: () => {
@@ -181,6 +179,7 @@ const App = () => {
     setCurrentImageIndex((prevIndex) =>
       prevIndex === 0 ? prevIndex : prevIndex - 1
     );
+    setClickedImageId(null); // Previous Image를 클릭할 때 클릭된 이미지 ID 초기화
   };
 
   // Next Image 기능
@@ -188,6 +187,7 @@ const App = () => {
     setCurrentImageIndex((prevIndex) =>
       prevIndex === images.length - 1 ? prevIndex : prevIndex + 1
     );
+    setClickedImageId(null); // Next Image를 클릭할 때 클릭된 이미지 ID 초기화
   };
 
   return (
@@ -199,49 +199,56 @@ const App = () => {
           <ul className="inline-flex space-x-4 mx-4">
             <li
               onClick={() =>
-                handleImageClick(images[currentImageIndex].id).handleZoom()
+                clickedImageId !== null &&
+                handleImageClick(clickedImageId).handleZoom()
               }
             >
               Zoom
             </li>
             <li
               onClick={() =>
-                handleImageClick(images[currentImageIndex].id).handleFlipH()
+                clickedImageId !== null &&
+                handleImageClick(clickedImageId).handleFlipH()
               }
             >
               Flip H
             </li>
             <li
               onClick={() =>
-                handleImageClick(images[currentImageIndex].id).handleFlipV()
+                clickedImageId !== null &&
+                handleImageClick(clickedImageId).handleFlipV()
               }
             >
               Flip V
             </li>
             <li
               onClick={() =>
-                handleImageClick(images[currentImageIndex].id).handleRotate()
+                clickedImageId !== null &&
+                handleImageClick(clickedImageId).handleRotate()
               }
             >
               Rotate Delta 30
             </li>
             <li
               onClick={() =>
-                handleImageClick(images[currentImageIndex].id).handleInvert()
+                clickedImageId !== null &&
+                handleImageClick(clickedImageId).handleInvert()
               }
             >
               Invert
             </li>
             <li
               onClick={() =>
-                handleImageClick(images[currentImageIndex].id).handleColormap()
+                clickedImageId !== null &&
+                handleImageClick(clickedImageId).handleColormap()
               }
             >
               Apply Colormap
             </li>
             <li
               onClick={() =>
-                handleImageClick(images[currentImageIndex].id).handleReset()
+                clickedImageId !== null &&
+                handleImageClick(clickedImageId).handleReset()
               }
             >
               Reset
@@ -271,7 +278,7 @@ const App = () => {
             .filter(
               (image) =>
                 image.id === currentImageIndex ||
-                image.id === currentImageIndex + 1
+                image.id === currentImageIndex + 2
             )
             .map((image) => (
               <img
