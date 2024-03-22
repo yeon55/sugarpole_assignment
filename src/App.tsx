@@ -93,7 +93,6 @@ const App = () => {
   ];
 
   useEffect(() => {
-    // Fetch pixel data for each image
     const fetchPixelData = async () => {
       const updatedImages = await Promise.all(
         images.map(async (image) => {
@@ -114,7 +113,7 @@ const App = () => {
           const data: number[][] = [];
           if (imageData) {
             for (let i = 0; i < imageData.data.length; i += 4) {
-              const pixelValue = imageData.data[i]; // Assuming grayscale image
+              const pixelValue = imageData.data[i];
               data.push([pixelValue]);
             }
           }
@@ -125,8 +124,7 @@ const App = () => {
     };
 
     fetchPixelData();
-  }, []); // Fetch pixel data only once when component mounts
-
+  }, []);
   function applyColorMap(pixelValue: number) {
     for (let i = 0; i < colorMap.length; i++) {
       if (pixelValue <= colorMap[i].value) {
@@ -182,7 +180,7 @@ const App = () => {
         if (img.id === id) {
           const updatedImageData = img.data.map((pixelArray: number[]) => {
             const color = applyColorMap(pixelArray[0]);
-            return [...color, 255]; // Assuming alpha value is 255
+            return [...color, 255];
           });
           return { ...img, data: updatedImageData };
         } else {
@@ -191,6 +189,7 @@ const App = () => {
       });
       setImages(updatedImages);
     },
+
     handleReset: () => {
       setImages(
         images.map((image) => ({
@@ -336,7 +335,6 @@ const App = () => {
                 src={image.src}
                 alt={`img_${image.id}`}
                 onClick={() => {
-                  const imageClickHandler = handleImageClick(image.id);
                   setClickedImageId(image.id);
                 }}
               />
