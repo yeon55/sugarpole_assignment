@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import "../public/index.css";
 
 interface Image {
+  [x: string]: any;
   id: number;
   zoomFactor: number;
   zoomed: boolean;
@@ -88,67 +89,32 @@ const App = () => {
 
   // 색상 맵을 정의
   const colorMap = [
-    { value: 0, color: [255, 255, 255] }, // 픽셀 값이 0인 경우 흰색으로 변환
-    { value: 255, color: [255, 0, 0] }, // 픽셀 값이 255인 경우 빨간색으로 변환
+    { value: 0, color: [255, 255, 255] },
+    { value: 255, color: [255, 0, 0] },
   ];
 
-  useEffect(() => {
-    const fetchPixelData = async () => {
-      const updatedImages = await Promise.all(
-        images.map(async (image) => {
-          const response = await fetch(image.src);
-          const blob = await response.blob();
-          const imageBitmap = await createImageBitmap(blob);
-          const canvas = document.createElement("canvas");
-          canvas.width = imageBitmap.width;
-          canvas.height = imageBitmap.height;
-          const context = canvas.getContext("2d");
-          context?.drawImage(imageBitmap, 0, 0);
-          const imageData = context?.getImageData(
-            0,
-            0,
-            canvas.width,
-            canvas.height
-          );
-          const data: number[][] = [];
-          if (imageData) {
-            for (let i = 0; i < imageData.data.length; i += 4) {
-              const pixelValue = imageData.data[i];
-              data.push([pixelValue]);
-            }
-          }
-          return { ...image, data };
-        })
-      );
-      setImages(updatedImages);
-    };
+  // 이미지 상태 업데이트 함수
+  const updateImageState = (id: number, newState: Partial<Image>) => {
+    setImages(
+      images.map((img) => (img.id === id ? { ...img, ...newState } : img))
+    );
+  };
 
-    fetchPixelData();
-  }, []);
-  function applyColorMap(pixelValue: number) {
-    for (let i = 0; i < colorMap.length; i++) {
-      if (pixelValue <= colorMap[i].value) {
+  const getColorForPixel = (pixelValue: number) => {
+    const colorMap = [
+      { value: 0, color: [255, 0, 0] },
+      { value: 255, color: [255, 255, 255] },
+    ];
+
+    for (let i = 0; i < colorMap.length - 1; i++) {
+      if (
+        pixelValue >= colorMap[i].value &&
+        pixelValue < colorMap[i + 1].value
+      ) {
         return colorMap[i].color;
       }
     }
     return [0, 0, 0];
-  }
-  // 이미지 상태 업데이트 함수
-  const updateImageState = (
-    id: number,
-    newState: {
-      zoomFactor?: number;
-      zoomed?: boolean;
-      flipped?: boolean;
-      flippedVertically?: boolean;
-      rotationAngle?: number;
-      inverted?: boolean;
-      data?: number[][];
-    }
-  ) => {
-    setImages(
-      images.map((img) => (img.id === id ? { ...img, ...newState } : img))
-    );
   };
 
   // 이미지 클릭 핸들러
@@ -176,18 +142,56 @@ const App = () => {
     },
 
     handleColormap: () => {
-      const updatedImages = images.map((img) => {
-        if (img.id === id) {
-          const updatedImageData = img.data.map((pixelArray: number[]) => {
-            const color = applyColorMap(pixelArray[0]);
-            return [...color, 255];
-          });
-          return { ...img, data: updatedImageData };
-        } else {
-          return img;
+      if (id !== null) {
+        const canvas = document.createElement("canvas");
+        const context = canvas.getContext("2d");
+
+        if (context) {
+          const imageElement = new Image();
+          imageElement.src = images[id].src;
+
+          imageElement.onload = () => {
+            canvas.width = imageElement.width;
+            canvas.height = imageElement.height;
+
+            context.drawImage(
+              imageElement,
+              0,
+              0,
+              imageElement.width,
+              imageElement.height
+            );
+
+            const imageData = context.getImageData(
+              0,
+              0,
+              canvas.width,
+              canvas.height
+            );
+            const data = imageData.data;
+
+            for (let i = 0; i < data.length; i += 4) {
+              const pixelValue = data[i];
+              const mappedColor = getColorForPixel(pixelValue);
+              data[i] = mappedColor[0];
+              data[i + 1] = mappedColor[1];
+              data[i + 2] = mappedColor[2];
+            }
+
+            context.putImageData(imageData, 0, 0);
+            const imgUrl = canvas.toDataURL();
+
+            setImages((prevImages) =>
+              prevImages.map((image) => {
+                if (image.id === id) {
+                  return { ...image, src: imgUrl, colormapApplied: true };
+                }
+                return image;
+              })
+            );
+          };
         }
-      });
-      setImages(updatedImages);
+      }
     },
 
     handleReset: () => {
@@ -323,14 +327,18 @@ const App = () => {
             .map((image) => (
               <img
                 key={image.id}
-                className="w-50%"
+                className="cursor-pointer"
                 style={{
                   transform: `rotate(${image.rotationAngle}deg) scaleX(${
                     image.flipped ? -1 : 1
                   }) scaleY(${image.flippedVertically ? -1 : 1}) scale(${
                     image.zoomFactor
                   })`,
-                  filter: image.inverted ? "invert(100%)" : "none",
+                  filter: image.inverted
+                    ? "invert(100%)"
+                    : image.colormapApplied
+                    ? `url(#colormap-${image.id})`
+                    : "none",
                 }}
                 src={image.src}
                 alt={`img_${image.id}`}
