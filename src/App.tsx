@@ -143,7 +143,7 @@ const App = () => {
       flippedVertically?: boolean;
       rotationAngle?: number;
       inverted?: boolean;
-      data?: any;
+      data?: number[][];
     }
   ) => {
     setImages(
