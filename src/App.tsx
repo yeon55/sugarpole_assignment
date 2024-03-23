@@ -10,7 +10,7 @@ interface Image {
   flippedVertically: boolean;
   rotationAngle: number;
   src: string;
-  originalSrc: string; // 추가: 원본 이미지 URL 저장
+  originalSrc: string;
   inverted: boolean;
   data: number[][];
 }
@@ -25,7 +25,7 @@ const App = () => {
       flippedVertically: false,
       rotationAngle: 0,
       src: "/image/img0.png",
-      originalSrc: "/image/img0.png", // 추가: 원본 이미지 URL 저장
+      originalSrc: "/image/img0.png",
       inverted: false,
       data: [],
     },
@@ -62,30 +62,6 @@ const App = () => {
       rotationAngle: 0,
       src: "/image/img3.png",
       originalSrc: "/image/img3.png",
-      inverted: false,
-      data: [],
-    },
-    {
-      id: 4,
-      zoomFactor: 1,
-      zoomed: false,
-      flipped: false,
-      flippedVertically: false,
-      rotationAngle: 0,
-      src: "/image/img4.png",
-      originalSrc: "/image/img4.png",
-      inverted: false,
-      data: [],
-    },
-    {
-      id: 5,
-      zoomFactor: 1,
-      zoomed: false,
-      flipped: false,
-      flippedVertically: false,
-      rotationAngle: 0,
-      src: "/image/img5.png",
-      originalSrc: "/image/img5.png",
       inverted: false,
       data: [],
     },
