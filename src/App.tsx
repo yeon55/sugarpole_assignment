@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import "../public/index.css";
 
 interface Image {
@@ -10,6 +10,7 @@ interface Image {
   flippedVertically: boolean;
   rotationAngle: number;
   src: string;
+  originalSrc: string; // 추가: 원본 이미지 URL 저장
   inverted: boolean;
   data: number[][];
 }
@@ -24,6 +25,7 @@ const App = () => {
       flippedVertically: false,
       rotationAngle: 0,
       src: "/image/img0.png",
+      originalSrc: "/image/img0.png", // 추가: 원본 이미지 URL 저장
       inverted: false,
       data: [],
     },
@@ -35,6 +37,7 @@ const App = () => {
       flippedVertically: false,
       rotationAngle: 0,
       src: "/image/img1.png",
+      originalSrc: "/image/img1.png",
       inverted: false,
       data: [],
     },
@@ -46,6 +49,7 @@ const App = () => {
       flippedVertically: false,
       rotationAngle: 0,
       src: "/image/img2.png",
+      originalSrc: "/image/img2.png",
       inverted: false,
       data: [],
     },
@@ -57,6 +61,7 @@ const App = () => {
       flippedVertically: false,
       rotationAngle: 0,
       src: "/image/img3.png",
+      originalSrc: "/image/img3.png",
       inverted: false,
       data: [],
     },
@@ -68,6 +73,7 @@ const App = () => {
       flippedVertically: false,
       rotationAngle: 0,
       src: "/image/img4.png",
+      originalSrc: "/image/img4.png",
       inverted: false,
       data: [],
     },
@@ -79,6 +85,7 @@ const App = () => {
       flippedVertically: false,
       rotationAngle: 0,
       src: "/image/img5.png",
+      originalSrc: "/image/img5.png",
       inverted: false,
       data: [],
     },
@@ -87,7 +94,7 @@ const App = () => {
   const [currentImageIndex, setCurrentImageIndex] = useState<number>(0); // 현재 보여지는 이미지의 인덱스
   const [clickedImageId, setClickedImageId] = useState<number | null>(null); // 클릭된 이미지의 ID 추적
 
-  // 색상 맵을 정의
+  // 색상 맵 정의
   const colorMap = [
     { value: 0, color: [255, 255, 255] },
     { value: 255, color: [255, 0, 0] },
@@ -184,7 +191,7 @@ const App = () => {
             setImages((prevImages) =>
               prevImages.map((image) => {
                 if (image.id === id) {
-                  return { ...image, src: imgUrl, colormapApplied: true };
+                  return { ...image, src: imgUrl };
                 }
                 return image;
               })
@@ -195,8 +202,8 @@ const App = () => {
     },
 
     handleReset: () => {
-      setImages(
-        images.map((image) => ({
+      setImages((prevImages) =>
+        prevImages.map((image) => ({
           ...image,
           zoomFactor: 1,
           zoomed: false,
@@ -204,6 +211,7 @@ const App = () => {
           flippedVertically: false,
           rotationAngle: 0,
           inverted: false,
+          src: image.originalSrc,
         }))
       );
     },
@@ -334,11 +342,7 @@ const App = () => {
                   }) scaleY(${image.flippedVertically ? -1 : 1}) scale(${
                     image.zoomFactor
                   })`,
-                  filter: image.inverted
-                    ? "invert(100%)"
-                    : image.colormapApplied
-                    ? `url(#colormap-${image.id})`
-                    : "none",
+                  filter: image.inverted ? "invert(100%)" : "none",
                 }}
                 src={image.src}
                 alt={`img_${image.id}`}
